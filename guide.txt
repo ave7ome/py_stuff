@@ -1,0 +1,17 @@
+Brief guide to network backup:
+
+1. Every day at TIME, "DIRECTORY/netdevice_backup.py" is run to backup the configuration of network devices.
+        Can be confirmed by running "crontab -l".
+        "MINUTES HOURS * * * PYTHON3_DIRECTORY/python3 DIRECTORY/script_red.py" is expected.
+
+2. Script loads up encryption, json and os libraries. Additionally, Netmiko connection handler.
+   - changes the execution directory for crontab job to correctly create the backups;
+   - decrypts stored password to access the devices and stores it;
+   - opens the json list of devices "devs.json" reads it and goes device by device trying to connect to each to retrieve the config to folder named after the device itself;
+        -- configuration backups are stored as "DEVICENAME-DATE.txt";
+   - if cannot connect to the device (any reason), script creates nothing and returns "DEVICENAME failed, check if there's access to device" line.
+
+3. Backups are stored at "DIRECTORY/configurations".
+
+4. Backup files with the same contents for each device is being deleted:
+        "del_duplicates.sh" is used to parse through configurations folder, compare the md5checksum between all files and delete ones, that have same checksum
